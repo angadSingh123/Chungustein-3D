@@ -1,0 +1,7 @@
+
+*.o
+*.exe
+*.cbp
+*.layout
+mad.txt
+mc.ico

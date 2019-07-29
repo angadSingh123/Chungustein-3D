@@ -1,0 +1,55 @@
+# depslib dependency file v1.0
+1564386095 source:c:\users\bob\desktop\codes\revenge\main.cpp
+	<tchar.h>
+	<windows.h>
+	"Game.h"
+	<math.h>
+	<iostream>
+	<commctrl.h>
+
+1563676496 source:c:\users\bob\desktop\codes\revenge\src\graphics.cpp
+	"Graphics.h"
+
+1563676273 c:\users\bob\desktop\codes\revenge\include\graphics.h
+	<windows.h>
+	<gdiplus.h>
+	<string>
+
+1564296166 source:c:\users\bob\desktop\codes\revenge\src\map.cpp
+	"Map.h"
+
+1564294432 c:\users\bob\desktop\codes\revenge\include\map.h
+	<fstream>
+	<iostream>
+	<string>
+	<string.h>
+	<cstdlib>
+
+1564290242 source:c:\users\bob\desktop\codes\revenge\src\graphics2d.cpp
+	"Graphics2D.h"
+
+1564288975 c:\users\bob\desktop\codes\revenge\include\graphics2d.h
+	<windows.h>
+	<gdiplus.h>
+	<string>
+	<vector>
+	<stdlib.h>
+
+1564385961 source:c:\users\bob\desktop\codes\revenge\src\game.cpp
+	"Game.h"
+	<tchar.h>
+	<string>
+	<stdio.h>
+	<math.h>
+
+1564386592 c:\users\bob\desktop\codes\revenge\include\game.h
+	<Graphics2D.h>
+	<math.h>
+	<Map.h>
+
+1564038602 c:\users\bob\desktop\codes\revenge\include\world.h
+	<Map.h>
+
+1564038832 source:c:\users\bob\desktop\codes\revenge\src\world.cpp
+	"World.h"
+
