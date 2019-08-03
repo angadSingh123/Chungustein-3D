@@ -40,7 +40,7 @@ Game::Game(HWND handle, int width, int height, int x, int y) : width(width), hei
     /* Register the window class, and if it fails quit the program */
     if (!RegisterClassEx (&wincl)){}
 
-    this->windowHandle = CreateWindowEx(0, szClassName, _T("Big Chunugs 3: Revenge of the son"), WS_CHILD | WS_VISIBLE, x,y, width, height, handle, NULL, NULL, NULL);
+    this->windowHandle = CreateWindowEx(0, szClassName, _T("Big Chunugs 3: Revenge of the son"),WS_EX_LAYERED | WS_CHILD | WS_VISIBLE, x,y, width, height, handle, NULL, NULL, NULL);
 
     myMap = new Map("res/mad.txt");
 
@@ -56,6 +56,9 @@ Game::Game(HWND handle, int width, int height, int x, int y) : width(width), hei
 
     mapY = height - myMap->getRows()*sz;
 
+    for (int i = 0 ; i < sizeof(ANGLES)/sizeof(ANGLES[0]) ; i++) std::cout << ANGLES[i] << std::endl;
+
+    std::cout << width << " " << height << " " << (float) this->depth << " " << (float) this->divAngle << " " << (float) this->distanceFromScreen << std::endl;
 
 }
 
@@ -75,7 +78,7 @@ Game::~Game()
 
 }
 
-void Game::update(){
+void Game::update(bool debug){
 
 
 	m_hdc = BeginPaint(windowHandle, &ps);
@@ -84,21 +87,13 @@ void Game::update(){
 
 	g2d->fill(255,255,255);
 
-    g2d->drawRect(0,0,width, height);
-
-	if (displayMap)drawMap();
-
-    g2d->drawRect(mapX + player_x, mapY + player_y, 5,5);
-
-    g2d->drawLine(mapX + player_x, mapY + player_y, HYP*cos(p_angle) + player_x + mapX, HYP*sin(p_angle) + player_y + mapY);
-
-   // g2d->drawLine(player_x, player_y, HYP*cos(p_angle - 0.52) + player_x, HYP*sin(p_angle- 0.52) + player_y);
-
-   // g2d->drawLine(player_x, player_y, HYP*cos(p_angle + 0.52) + player_x, HYP*sin(p_angle + 0.52) + player_y);
+    g2d->drawFillRect(0,0,width, height);
 
     num = 0;
 
-    for (float x = p_angle - depth; x < p_angle + depth; x+= div) calcDist(x);
+    for (float x = p_angle - depth; x < p_angle + depth; x+= divAngle) calcDist(x, false);
+
+    if (displayMap)drawMap();
 
 	BitBlt(m_hdc, 0, 0, width, height, Memhdc, 0, 0, SRCCOPY);
 
@@ -112,6 +107,7 @@ void Game::update(){
 
 void Game::drawMap(){
 
+    g2d->fill(0,0,0);
 
     for (int i = 0; i < myMap->getRows(); i++){
 
@@ -126,13 +122,18 @@ void Game::drawMap(){
                 g2d->fill(255,0,255);
             }
 
-            g2d->drawRect(mapX + sz*j, mapY + sz*i, sz,sz);
+            g2d->drawFillRect(mapX + sz*j, mapY + sz*i, sz,sz);
         }
 
     }
+
+    g2d->drawFillRect(mapX + player_x, mapY + player_y, 5,5);
+
+    g2d->drawLine(mapX + player_x, mapY + player_y, HYP*cos(p_angle) + player_x + mapX, HYP*sin(p_angle) + player_y + mapY);
+
 }
 
-void Game::calcDist(float angle) {
+void Game::calcDist(float angle, bool debug) {
 
     //horizontal
 
@@ -167,7 +168,7 @@ void Game::calcDist(float angle) {
         } while(myMap->getData(gridX, gridY) != 'W');
     }
 
-    //printf("x_add %f y_addd %f  x_init %f y_init %f \n", x_add, y_add, x_init, y_init);
+    //if (debug) printf("x_add %f y_addd %f  x_init %f y_init %f \n", x_add, y_add, x_init, y_init);
 
     //vertical
 
@@ -212,149 +213,101 @@ void Game::calcDist(float angle) {
 
     float distH = sqrt((player_x - x_init) * (player_x - x_init)  + (player_y - y_init) * (player_y - y_init) );
 
-    float distV = sqrt((player_x - inX) * (player_x - inX)  + (player_y - inY) * (player_y - inY) );
+    //float distV = sqrt((player_x - inX) * (player_x - inX)  + (player_y - inY) * (player_y - inY) );
+
+    float distV = 0;
+
 
     g2d->stroke(0.4f);
 
-    if ( distH < distV )
-
-        {
-
-             if (displayMap)
-        {
-
-
-        g2d->fill(255,255,255);
+    if ( distH > distV ){
 
         g2d->drawLine(player_x + mapX, player_y + mapY, x_init + mapX, y_init + mapY);
 
-        }
-        //g2d->stroke(5);
+        float proj = distanceFromScreen  / distH;
 
-        num++;
+        g2d->fill(0, proj, 0);
 
-        g2d->fill(0,0,0);
+        g2d->drawFillRect(colWidth * num, (height-proj)/2, colWidth, proj);
 
-        float proj = 0.23  * distH;
+    }
 
-        g2d->drawRect(5* num, (height-proj)/2, 5, proj);
-
-
-        }
-
-    else
-
-        {
-
-        if (displayMap)
-        {
+    else {
 
 
         g2d->fill(0,255,0);
 
         g2d->drawLine(player_x + mapX, player_y + mapY, inX + mapX, inY +mapY);
-        }
-        //g2d->stroke(5);
-
-        num++;
 
         g2d->fill(0,0,0);
 
-        float proj = 0.23  * distV;
+        float proj = distanceFromScreen  / distV;
 
-        g2d->drawRect(5* num, (height-proj)/2, 5, proj);
-
-        }
+        g2d->drawFillRect(colWidth* num, (height-proj)/2, colWidth, proj);
 
 
+    }
+
+    num++;
 }
 
 void Game::debug(){
 
-    std::cout << p_angle * (180/M_PI) << std::endl;
+    std::cout << p_angle * (180/M_PI) << " " <<   std::endl;
 
-    //horizontal
+    update(true);
 
-    float gridX, gridY;
+}
 
-    float x_add = tan(p_angle) * sz;
 
-    float y_add = sz;
+void Game::handleInput(WPARAM input, LPARAM args) {
 
-    float y_init = (((int)(player_y /sz) + 1) * sz) ;
+    switch (input){
 
-    float x_init = (y_init - player_y) * tan(p_angle) + player_x;
 
-    gridX = y_init/sz;
+            case VK_LEFT:
+                this->player_x-=5;
+                break;
 
-    gridY = x_init/sz;
+            case VK_RIGHT:
+                this->player_x+= 5;
+                break;
 
-    if (myMap->getData(gridX, gridY) != 'W') {
+            case VK_DOWN:
+                this->player_y+= 5;
+                break;
 
-        do {
+            case VK_UP:
+                this->player_y-= 5;
+                break;
 
-            x_init += x_add;
+            case VK_RETURN:
+                idxOngle += ( idxOngle ==  4 ) ? -4 : 1;
+                this->p_angle = ANGLES[idxOngle];  //(  (  (int) ((2*g->p_angle +  0.78f)/PI - 1)   /  2) % 2   != 0) ? g->p_angle + 0.1f : g->p_angle + 0.78f;
+                break;
 
-            y_init += y_add;
+            case VK_SPACE:
+                this->displayMap = !this->displayMap;
+                break;
 
-            gridX = y_init/sz;
+            case 0x58:
+                m_resolution ++;
+                divAngle = (2.0f * depth) / m_resolution;
+                colWidth = this->width/m_resolution;
+                break;
 
-            gridY = x_init/sz;
+            case 0x5A:
+                m_resolution -= (m_resolution == 20) ? 0 : 1;
+                divAngle = (2.0f * depth) / m_resolution;
+                colWidth = this->width/m_resolution;
+                break;
 
-            if (gridX >= myMap->getRows() || gridY >= myMap->getCols()) break;
+            case 0x49:
+                this->debug();
+                break;
 
-        } while(myMap->getData(gridX, gridY) != 'W');
-
-        //printf("x %.2f y %.2f %c\n", gridX, gridY, myMap->getData(gridX, gridY));
     }
 
-    //printf("x_add %f y_addd %f  x_init %f y_init %f \n", x_add, y_add, x_init, y_init);
-
-    //vertical
-
-    x_add = sz;
-
-    y_add = tan(p_angle) * x_add;
-
-    float dx = (((int) (player_x/sz) + 1) * sz) - player_x;
-
-    float dy = tan(p_angle) * dx;
-
-    float inX = player_x + dx;
-
-    float inY = player_y + dy;
-
-    //printf("x_add %f y_addd %f  inX %f inY %f  %c\n", x_add, y_add, inX, inY, myMap->getData(inY/sz,inX/sz));
-
-    gridX = inY/sz;
-
-    gridY = inX/sz;
-
-    if (myMap->getData(gridX,gridY) != 'W'){
-
-        do {
-
-            inX += x_add;
-
-            inY += y_add;
-
-            gridX = inY/sz;
-
-            gridY = inX/sz;
-
-            if (gridX >= myMap->getRows() || gridY >= myMap->getCols()) break;
-
-        } while (myMap->getData(gridX, gridY) != 'W');
-
-        printf("x %.2f y %.2f %c\n", gridX, gridY, myMap->getData(inY/sz,inX/sz));
-
-   }
-
-   else {
-
-    printf("x %.2f y %.2f %c\n", gridX, gridY, myMap->getData(inY/sz,inX/sz));
-
-   }
 
 }
 

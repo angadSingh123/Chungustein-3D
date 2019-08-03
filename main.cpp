@@ -66,7 +66,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
            0,                   /* Extended possibilites for variation */
            szClassName,         /* Classname */
            _T("Big Chunugs 3: Revenge of the son"),       /* Title Text */
-           WS_OVERLAPPED |  WS_SIZEBOX | WS_SYSMENU | WS_THICKFRAME, /* default window */
+           WS_OVERLAPPED |  WS_SIZEBOX | WS_SYSMENU | WS_THICKFRAME , /* default window */
            CW_USEDEFAULT,       /* Windows decides the position */
            CW_USEDEFAULT,       /* where the window ends up on the screen */
            WIDTH,                 /* The programs width */
@@ -101,12 +101,12 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
 
         if (current - last >= tickRate) {
 
-                g->update();
+                g->update(false);
                 last = current;
 
         }
 
-        else {Sleep(current - last);}
+        else Sleep(current - last);
 
     }
 
@@ -131,41 +131,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
             break;
 
         case WM_KEYDOWN:
-
-            switch(wParam){
-
-                case VK_LEFT:
-                    g->player_x-=5;
-                    break;
-
-                case VK_RIGHT:
-                    g->player_x+= 5;
-                    break;
-
-                case VK_DOWN:
-                    g->player_y+= 5;
-                    break;
-
-                case VK_UP:
-                    g->player_y-= 5;
-                    break;
-
-                case VK_RETURN:
-                    g->p_angle += 0.4363f;  //(  (  (int) ((2*g->p_angle +  0.78f)/PI - 1)   /  2) % 2   != 0) ? g->p_angle + 0.1f : g->p_angle + 0.78f;
-                    break;
-
-                case VK_SPACE:
-                    g->displayMap = !g->displayMap;
-                    std::cout << "ss\n";
-                    break;
-
-                case VK_RBUTTON:
-                    g->displayMap = !g->displayMap;
-                    std::cout << "ss\n";
-                    break;
-
-            }
-
+            g->handleInput(wParam, lParam);
             break;
 
         case WM_HSCROLL:
@@ -200,10 +166,10 @@ int AddControls(HWND hParent){
     if (!InitCommonControlsEx(&icex)) return -1;
     hTrack = CreateWindowW(TRACKBAR_CLASSW, L"Track", WS_CHILD | WS_VISIBLE | TBS_AUTOTICKS, 30, 500, 100, 20, hParent, (HMENU) 3, NULL, NULL);
 
-    SendMessage(hTrack, TBM_SETRANGE, TRUE, MAKELONG(20, 50));
+    SendMessage(hTrack, TBM_SETRANGE, TRUE, MAKELONG(20, 90));
     SendMessageW(hTrack, TBM_SETPAGESIZE, 0,  10);
     SendMessageW(hTrack, TBM_SETTICFREQ, 10, 0);
-    SendMessageW(hTrack, TBM_SETPOS, FALSE, 20);
+    SendMessageW(hTrack, TBM_SETPOS, FALSE, 45);
 
     return 0;
 }

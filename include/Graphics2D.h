@@ -19,6 +19,7 @@ class Graphics2D
         void drawRect(int, int, int, int);
         int drawImage(Bitmap&, int, int, double scale = 1, bool cache = false);
         void drawCachedImage(int, int, int, double scale = 1);
+        void drawFillRect(int, int, int, int);
         void fill (int , int , int , int a = 255);
         void stroke(float w = 1.0f);
 

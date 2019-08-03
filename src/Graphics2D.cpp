@@ -44,13 +44,21 @@ void Graphics2D::drawText(const WCHAR* text, int x1, int y1, int size){
 
 void Graphics2D::drawRect(int x, int y, int w, int h){
 
+    m_graphics->DrawRectangle(m_pen, x, y, w, h);
+}
+
+void Graphics2D::drawFillRect(int x, int y, int w, int h){
+
     m_graphics->FillRectangle(m_brush, x, y, w, h);
 }
 
+
 void Graphics2D::fill(int r, int g, int b, int a){
 
-        m_brush->SetColor(Color(a,r,g,b));
-        m_pen->SetBrush(m_brush);
+    m_brush->SetColor(Color(a,r,g,b));
+
+    m_pen->SetBrush(m_brush);
+
 }
 
 void Graphics2D::stroke(float w){
